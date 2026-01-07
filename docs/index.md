@@ -1,13 +1,21 @@
 Unreal Notes
 ============
 
+Other pages
+-----------
+
+* [Unreal Garden](https://unreal-garden.com/) - originally BenUI, a useful resource in general, but the
+  UPROPERTY/UFUNCTION/... specifier list is absolutely indispensable
+* [Ikrima Dev](https://ikrima.dev/) - seems a bit outdated, but I've been finding some really useful notes in there every now
+  and then
+
 Triggers
 --------
 
-###  Trigger events at actor load
+###  Trigger overlap events at actor load
 
 By default `OnComponentBeginOverlap` and similar events will not trigger during actor loading. You can see this by adding
-a breakpoing in `UPrimitiveComponent::UpdateOverlapsImpl` and you'll see the initial call coming from `DispatchBeginPlay`
+a breakpoint in `UPrimitiveComponent::UpdateOverlapsImpl` and you'll see the initial call coming from `DispatchBeginPlay`
 has `bDoNotifies` set to false. Now this is unless you set the `bGenerateOverlapEventsDuringLevelStreaming` flag
 (`Generate Overlap Events During Level Streaming` in editor details) for the _actor_ containing your component.
 Note that the flag suggests this has something to do with streaming, but actually this should say "level loading".
@@ -28,3 +36,7 @@ unable to reproduce them based on physical bodies).
 
 The only way I found to work around this issue is to not derive from `PrimitiveComponent` for composite volumes.
 Unfortunately this also means overlap events are only generated for the composite volume, not for the player.
+
+Configuration files
+-------------------
+
