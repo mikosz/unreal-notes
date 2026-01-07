@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="None">
+        
+        
+        <link rel="shortcut icon" href="img/favicon.ico">
+        <title>Unreal Notes</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/fontawesome.min.css" rel="stylesheet">
+        <link href="css/brands.min.css" rel="stylesheet">
+        <link href="css/solid.min.css" rel="stylesheet">
+        <link href="css/v4-font-face.min.css" rel="stylesheet">
+        <link href="css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body class="homepage">
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href=".">Unreal Notes</a>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#unreal-notes" class="nav-link">Unreal Notes</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#other-pages" class="nav-link">Other pages</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#triggers" class="nav-link">Triggers</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#configuration-files" class="nav-link">Configuration files</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="unreal-notes">Unreal Notes</h1>
+<h2 id="other-pages">Other pages</h2>
+<ul>
+<li><a href="https://unreal-garden.com/">Unreal Garden</a> - originally BenUI, a useful resource in general, but the
+  UPROPERTY/UFUNCTION/... specifier list is absolutely indispensable</li>
+<li><a href="https://ikrima.dev/">Ikrima Dev</a> - seems a bit outdated, but I've been finding some really useful notes in there every now
+  and then</li>
+</ul>
+<h2 id="triggers">Triggers</h2>
+<h3 id="trigger-overlap-events-at-actor-load">Trigger overlap events at actor load</h3>
+<p>By default <code>OnComponentBeginOverlap</code> and similar events will not trigger during actor loading. You can see this by adding
+a breakpoint in <code>UPrimitiveComponent::UpdateOverlapsImpl</code> and you'll see the initial call coming from <code>DispatchBeginPlay</code>
+has <code>bDoNotifies</code> set to false. Now this is unless you set the <code>bGenerateOverlapEventsDuringLevelStreaming</code> flag
+(<code>Generate Overlap Events During Level Streaming</code> in editor details) for the <em>actor</em> containing your component.
+Note that the flag suggests this has something to do with streaming, but actually this should say "level loading".</p>
+<h3 id="overlap-updates">Overlap updates</h3>
+<p>Unreal optimizes how and when overlaps are calculated. This is mainly implemented in <code>UPrimitiveComponent::UpdateOverlapsImpl</code>.
+The function is called once when the containing actor begins play and then only when something possibly changes - e.g.
+when something moves. When a primitive component moves it calls update overlaps for itself only. It generates a new
+set of overlaps, and calls <code>BeginOverlapComponent</code> / <code>EndOverlapComponent</code> for components that are now overlapping
+and haven't before and vice-versa. This also updates the <code>OverlappingComponents</code> array for the moved primitive
+component as well as the components for which the overlap events are generated.</p>
+<p>A side effect of this is that if you add any "logical" overlaps, that is overlaps not based on physical bodies, these
+overalps may be cleaned up by another component. This was a problem for <code>ZkzCompositeVolumeComponent</code> where I tried to
+generate overlaps in <code>UpdateOverlapsImpl</code>, but whenever an overlapping player moved it would remove them (as it was
+unable to reproduce them based on physical bodies).</p>
+<p>The only way I found to work around this issue is to not derive from <code>PrimitiveComponent</code> for composite volumes.
+Unfortunately this also means overlap events are only generated for the composite volume, not for the player.</p>
+<h2 id="configuration-files">Configuration files</h2></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = ".",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="js/base.js"></script>
+        <script src="search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
+
+<!--
+MkDocs version : 1.6.1
+Build Date UTC : 2026-01-07 22:11:03.306559+00:00
+-->
