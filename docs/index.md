@@ -9,6 +9,28 @@ Other pages
 * [Ikrima Dev](https://ikrima.dev/) - seems a bit outdated, but I've been finding some really useful notes in there every now
   and then
 
+Logging
+-------
+
+### Setting log verbosity
+
+To set a categories logging verbosity you have a few options:
+
+#### DefaultEngine.ini (or other ini file)
+
+```
+[Core.Log]
+CategoryName=NewVerbosity
+```
+
+#### Passing command-line argument
+
+`-log CategoryName NewVerbosity`
+
+#### Calling console command
+
+`Log CategoryName NewVerbosity`
+
 Triggers
 --------
 
