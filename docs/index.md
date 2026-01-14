@@ -31,6 +31,26 @@ CategoryName=NewVerbosity
 
 `Log CategoryName NewVerbosity`
 
+Reflection
+----------
+
+### Iterating over enums
+
+`UEnum::NumEnums()` is not reliable for iterating over possible enum values as it sometimes contains an extra entry,
+the `_MAX` entry. A solution is to iterate like this:
+
+```
+const UEnum* const Enum = StaticEnum<EEnumType>();
+const int32 NumEnumValues = ComparisonTypeEnum->NumEnums() - (ComparisonTypeEnum->ContainsExistingMax() ? 1 : 0);
+
+for (int32 Index = 0; Index < NumEnumValues; ++Index)
+{
+	const EEnumTypeValue = static_cast<EEnumType>(Enum->GetValueByIndex(Index));
+	...
+```
+
+I'm not 100% sure this covers all possible extra meta enum values, but this solution has worked for me until now.
+
 Triggers
 --------
 
