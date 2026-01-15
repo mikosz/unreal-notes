@@ -89,6 +89,14 @@
               <ul class="nav flex-column">
               </ul>
             </li>
+            <li class="nav-item" data-bs-level="2"><a href="#logging" class="nav-link">Logging</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#reflection" class="nav-link">Reflection</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
             <li class="nav-item" data-bs-level="2"><a href="#triggers" class="nav-link">Triggers</a>
               <ul class="nav flex-column">
               </ul>
@@ -112,6 +120,30 @@
 <li><a href="https://ikrima.dev/">Ikrima Dev</a> - seems a bit outdated, but I've been finding some really useful notes in there every now
   and then</li>
 </ul>
+<h2 id="logging">Logging</h2>
+<h3 id="setting-log-verbosity">Setting log verbosity</h3>
+<p>To set a categories logging verbosity you have a few options:</p>
+<h4 id="defaultengineini-or-other-ini-file">DefaultEngine.ini (or other ini file)</h4>
+<pre><code>[Core.Log]
+CategoryName=NewVerbosity
+</code></pre>
+<h4 id="passing-command-line-argument">Passing command-line argument</h4>
+<p><code>-log CategoryName NewVerbosity</code></p>
+<h4 id="calling-console-command">Calling console command</h4>
+<p><code>Log CategoryName NewVerbosity</code></p>
+<h2 id="reflection">Reflection</h2>
+<h3 id="iterating-over-enums">Iterating over enums</h3>
+<p><code>UEnum::NumEnums()</code> is not reliable for iterating over possible enum values as it sometimes contains an extra entry,
+the <code>_MAX</code> entry. A solution is to iterate like this:</p>
+<pre><code>const UEnum* const Enum = StaticEnum&lt;EEnumType&gt;();
+const int32 NumEnumValues = ComparisonTypeEnum-&gt;NumEnums() - (ComparisonTypeEnum-&gt;ContainsExistingMax() ? 1 : 0);
+
+for (int32 Index = 0; Index &lt; NumEnumValues; ++Index)
+{
+    const EEnumTypeValue = static_cast&lt;EEnumType&gt;(Enum-&gt;GetValueByIndex(Index));
+    ...
+</code></pre>
+<p>I'm not 100% sure this covers all possible extra meta enum values, but this solution has worked for me until now.</p>
 <h2 id="triggers">Triggers</h2>
 <h3 id="trigger-overlap-events-at-actor-load">Trigger overlap events at actor load</h3>
 <p>By default <code>OnComponentBeginOverlap</code> and similar events will not trigger during actor loading. You can see this by adding
@@ -214,5 +246,5 @@ Unfortunately this also means overlap events are only generated for the composit
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2026-01-07 22:26:26.518118+00:00
+Build Date UTC : 2026-01-15 21:55:43.480388+00:00
 -->
