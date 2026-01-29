@@ -51,55 +51,6 @@ for (int32 Index = 0; Index < NumEnumValues; ++Index)
 
 I'm not 100% sure this covers all possible extra meta enum values, but this solution has worked for me until now.
 
-### Changing default value
-
-Picture this case:
-
-```
-USTRUCT()
-struct FSomeStruct {
-	...
-	
-	bool bBool = false;
-};
-
-UCLASS()
-class USomeClass {
-	...
-	
-	UPROPERTY()
-	FSomeStruct S;
-};
-```
-
-You have a class containing a struct field, which contains a bool field that defaults to false. You work happily like this
-until some poor soul says that each time they work with objects of class `Some Class`, they need to do numerous clicks to
-get to the property `Bool` and change the value to true, because 99% of the cases they want it to be true. But you already
-have countless instances of `Some Class` and `Some Struct` in your game - changing the default to true or assigning it in
-the constructor of `Some Class` would change all instances to true (Unreal doesn't serialize non-overwritten property
-values - this is very useful in most cases, but troublesome in this case).
-
-You could override `OnSerialize` for `Some Class` and keep a serialized version of the object, where all older versions
-would default to false and all new versions would default to true, but this adds data to a struct that perhaps shows up
-often and is otherwise small and it feels like a waste (not to mention that it's a bit of coding that's easy to get wrong).
-
-There's a very neat solution for this, which is to implement `PostInitProperties` for `Some Class`:
-
-```c++
-void USomeClass::PostInitProperties()
-{
-	Super::PostInitProperties();
-
-	if (!HasAnyFlags(RF_ClassDefaultObject) && !HasAnyFlags(RF_WasLoaded))
-	{
-		S.bBool = true;
-	}
-}
-```
-
-This will be called after properties are initialized and will only change the value for newly instantiated objects -
-not for loaded objects or the CDO.
-
 Triggers
 --------
 
